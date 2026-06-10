@@ -1,143 +1,153 @@
 // ========================================
-// MODEL - CAMADA DE DADOS
+// MODEL - CAMADA DE DADOS COM PRISMA
 // ========================================
 // Esta camada é responsável por:
-// - Armazenar os dados (em memória, banco de dados, etc.)
+// - Armazenar os dados no banco de dados via Prisma
 // - Implementar a lógica de negócio
 // - Realizar operações CRUD (Create, Read, Update, Delete)
 
-/**
- * Array que armazena as tarefas temporariamente
- * Observação: esses dados somem quando o servidor reinicia
- * Futuramente, isso será substituído por um banco de dados
- */
-const tarefas = [
-  { id: 1, descricao: "Estudar química", concluida: false },
-  { id: 2, descricao: "Criar páginas no Figma", concluida: true }
-];
+import { prisma } from "../config/prisma.js";
 
 // ========================================
-// FUNÇÕES AUXILIARES
-// ========================================
-
-/**
- * Procura o índice de uma tarefa no array com base no id
- * @param {number} id - ID da tarefa a ser encontrada
- * @returns {number} - Índice da tarefa ou -1 se não encontrar
- */
-function encontrarIndiceTarefa(id) {
-  for (let i = 0; i < tarefas.length; i++) {
-    if (tarefas[i].id === id) {
-      return i;
-    }
-  }
-  return -1;
-}
-
-/**
- * Gera um novo id para a próxima tarefa
- * Se o array estiver vazio, começa com 1
- * Caso contrário, pega o maior id existente e soma 1
- * @returns {number} - Novo ID gerado
- */
-function gerarNovoId() {
-  if (tarefas.length === 0) return 1;
-
-  let maiorId = 0;
-  for (let i = 0; i < tarefas.length; i++) {
-    if (tarefas[i].id > maiorId) {
-      maiorId = tarefas[i].id;
-    }
-  }
-
-  return maiorId + 1;
-}
-
-// ========================================
-// OPERAÇÕES CRUD
+// OPERAÇÕES CRUD COM PRISMA
 // ========================================
 
 /**
  * Retorna todas as tarefas cadastradas
- * @returns {Array} - Array com todas as tarefas
+ * @returns {Promise<Array>} - Promise que resolve para array com todas as tarefas
  */
-export function obterTodasTarefas() {
-  return tarefas;
+export async function listar() {
+  try {
+    const tarefas = await prisma.task.findMany({
+      include: {
+        category: true
+      },
+      orderBy: {
+        createdAt: "desc"
+      }
+    });
+    return tarefas;
+  } catch (error) {
+    console.error("Erro ao listar tarefas:", error);
+    throw error;
+  }
 }
 
 /**
- * Procura uma tarefa específica pelo id
+ * Busca uma tarefa específica pelo id
  * @param {number} id - ID da tarefa a ser buscada
- * @returns {Object|null} - A tarefa encontrada ou null
+ * @returns {Promise<Object|null>} - Promise que resolve para a tarefa ou null se não encontrar
  */
-export function obterTarefaPorId(id) {
-  const indice = encontrarIndiceTarefa(id);
-
-  if (indice === -1) return null;
-
-  return tarefas[indice];
+export async function buscarPorId(id) {
+  try {
+    const tarefa = await prisma.task.findUnique({
+      where: { id: Number(id) },
+      include: {
+        category: true
+      }
+    });
+    return tarefa;
+  } catch (error) {
+    if (error.code === "P2025") {
+      return null;
+    }
+    console.error("Erro ao buscar tarefa por ID:", error);
+    throw error;
+  }
 }
 
 /**
  * Cria uma nova tarefa
- * A descrição é limpa com trim() para remover espaços extras
- * Toda nova tarefa começa com concluida = false
- * @param {string} descricao - Descrição da nova tarefa
- * @returns {Object} - A tarefa criada
+ * @param {Object} dados - Dados da tarefa (title, description, categoryId)
+ * @returns {Promise<Object>} - Promise que resolve para a tarefa criada
  */
-export function criarNovaTarefa(descricao) {
-  const novaTarefa = {
-    id: gerarNovoId(),
-    descricao: descricao.trim(),
-    concluida: false
-  };
+export async function criar(dados) {
+  try {
+    const { title, description, categoryId } = dados;
 
-  tarefas.push(novaTarefa);
-  return novaTarefa;
+    const tarefa = await prisma.task.create({
+      data: {
+        title: title.trim(),
+        description: description ? description.trim() : null,
+        completed: false,
+        categoryId: categoryId ? Number(categoryId) : null
+      },
+      include: {
+        category: true
+      }
+    });
+
+    return tarefa;
+  } catch (error) {
+    if (error.code === "P2025") {
+      return null;
+    }
+    console.error("Erro ao criar tarefa:", error);
+    throw error;
+  }
 }
 
 /**
- * Atualiza uma tarefa existente
- * Pode atualizar a descrição e/ou o status de conclusão
+ * Atualiza uma tarefa existente (atualização parcial)
  * @param {number} id - ID da tarefa a ser atualizada
- * @param {string} novaDescricao - Nova descrição (opcional)
- * @param {boolean} novoStatus - Novo status de conclusão (opcional)
- * @returns {Object|null} - A tarefa atualizada ou null se não encontrar
+ * @param {Object} dados - Dados a serem atualizados (title, description, completed, categoryId)
+ * @returns {Promise<Object|null>} - Promise que resolve para a tarefa atualizada ou null
  */
-export function atualizarTarefa(id, novaDescricao, novoStatus) {
-  const indice = encontrarIndiceTarefa(id);
+export async function atualizar(id, dados) {
+  try {
+    const dataUpdate = {};
 
-  if (indice === -1) return null;
+    if (dados.title !== undefined) {
+      dataUpdate.title = dados.title.trim();
+    }
+    if (dados.description !== undefined) {
+      dataUpdate.description = dados.description ? dados.description.trim() : null;
+    }
+    if (dados.completed !== undefined) {
+      dataUpdate.completed = dados.completed;
+    }
+    if (dados.categoryId !== undefined) {
+      dataUpdate.categoryId = dados.categoryId ? Number(dados.categoryId) : null;
+    }
 
-  const tarefa = tarefas[indice];
+    const tarefaAtualizada = await prisma.task.update({
+      where: { id: Number(id) },
+      data: dataUpdate,
+      include: {
+        category: true
+      }
+    });
 
-  // Atualiza a descrição apenas se ela foi enviada
-  if (novaDescricao !== undefined) {
-    tarefa.descricao = novaDescricao.trim();
+    return tarefaAtualizada;
+  } catch (error) {
+    if (error.code === "P2025") {
+      return null;
+    }
+    console.error("Erro ao atualizar tarefa:", error);
+    throw error;
   }
-
-  // Atualiza o status apenas se ele foi enviado
-  if (novoStatus !== undefined) {
-    tarefa.concluida = novoStatus;
-  }
-
-  return tarefa;
 }
 
 /**
  * Exclui uma tarefa pelo id
  * @param {number} id - ID da tarefa a ser excluída
- * @returns {Object|null} - A tarefa removida ou null se não encontrar
+ * @returns {Promise<Object|null>} - Promise que resolve para a tarefa removida ou null
  */
-export function excluirTarefa(id) {
-  const indice = encontrarIndiceTarefa(id);
+export async function excluir(id) {
+  try {
+    const tarefaRemovida = await prisma.task.delete({
+      where: { id: Number(id) },
+      include: {
+        category: true
+      }
+    });
 
-  if (indice === -1) return null;
-
-  const tarefaRemovida = tarefas[indice];
-
-  // Remove 1 elemento do array na posição encontrada
-  tarefas.splice(indice, 1);
-
-  return tarefaRemovida;
+    return tarefaRemovida;
+  } catch (error) {
+    if (error.code === "P2025") {
+      return null;
+    }
+    console.error("Erro ao excluir tarefa:", error);
+    throw error;
+  }
 }

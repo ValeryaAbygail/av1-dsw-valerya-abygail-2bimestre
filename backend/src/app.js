@@ -13,9 +13,27 @@ import tarefaRoutes from "./routes/tarefaRoutes.js";
 // Cria a aplicação Express
 const app = express();
 
+const corsHeaders = {
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
+  "Access-Control-Allow-Headers": "Content-Type"
+};
+
 // ========================================
 // MIDDLEWARES
 // ========================================
+
+app.use((req, res, next) => {
+  Object.entries(corsHeaders).forEach(([header, value]) => {
+    res.setHeader(header, value);
+  });
+
+  if (req.method === "OPTIONS") {
+    return res.sendStatus(204);
+  }
+
+  next();
+});
 
 // Permite que o servidor entenda JSON enviado no corpo da requisição
 app.use(express.json());

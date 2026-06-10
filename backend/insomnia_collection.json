@@ -1,0 +1,120 @@
+{
+  "client": "Insomnia",
+  "clientVersion": "2024.1.0",
+  "httpVersion": "HTTP/1.1",
+  "keyToParamMap": {},
+  "resources": [
+    {
+      "_id": "req_1",
+      "parentId": "wrk_1",
+      "modified": 1716714620699,
+      "created": 1716714620699,
+      "url": "http://localhost:3000/tarefas",
+      "name": "1. Listar Todas as Tarefas",
+      "description": "GET - Retorna todas as tarefas com suas categorias",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": "-1716714620699"
+    },
+    {
+      "_id": "req_2",
+      "parentId": "wrk_1",
+      "modified": 1716714620700,
+      "created": 1716714620700,
+      "url": "http://localhost:3000/tarefas/1",
+      "name": "2. Buscar Tarefa por ID",
+      "description": "GET - Busca uma tarefa específica pelo ID",
+      "method": "GET",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": "-1716714620698"
+    },
+    {
+      "_id": "req_3",
+      "parentId": "wrk_1",
+      "modified": 1716714620701,
+      "created": 1716714620701,
+      "url": "http://localhost:3000/tarefas",
+      "name": "3. Criar Nova Tarefa",
+      "description": "POST - Cria uma nova tarefa",
+      "method": "POST",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Estudar Prisma\",\n  \"description\": \"Aprender o ORM Prisma\",\n  \"categoryId\": 1\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": "-1716714620697"
+    },
+    {
+      "_id": "req_4",
+      "parentId": "wrk_1",
+      "modified": 1716714620702,
+      "created": 1716714620702,
+      "url": "http://localhost:3000/tarefas/1",
+      "name": "4. Atualizar Tarefa",
+      "description": "PUT - Atualiza uma tarefa parcialmente",
+      "method": "PUT",
+      "body": {
+        "mimeType": "application/json",
+        "text": "{\n  \"title\": \"Estudar Prisma Advanced\",\n  \"completed\": true\n}"
+      },
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": "-1716714620696"
+    },
+    {
+      "_id": "req_5",
+      "parentId": "wrk_1",
+      "modified": 1716714620703,
+      "created": 1716714620703,
+      "url": "http://localhost:3000/tarefas/1",
+      "name": "5. Excluir Tarefa",
+      "description": "DELETE - Remove uma tarefa",
+      "method": "DELETE",
+      "body": {},
+      "parameters": [],
+      "headers": [
+        {
+          "name": "Content-Type",
+          "value": "application/json"
+        }
+      ],
+      "authentication": {},
+      "metaSortKey": "-1716714620695"
+    }
+  ],
+  "workspace": {
+    "_id": "wrk_1",
+    "name": "API Tarefas - CRUD Completo",
+    "description": "Coleção de requisições para testar o CRUD de Tarefas com Prisma",
+    "scope": "collection"
+  }
+}

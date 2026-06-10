@@ -9,11 +9,10 @@
 import express from "express";
 import * as TarefaController from "../controllers/tarefaController.js";
 
-// Cria um roteador do Express
 const router = express.Router();
 
 // ========================================
-// DEFINIÇÃO DAS ROTAS DE TAREFAS
+// DEFINIÇÃO DAS ROTAS REST DE TAREFAS
 // ========================================
 
 /**
@@ -22,7 +21,7 @@ const router = express.Router();
 router.get("/tarefas", TarefaController.listarTarefas);
 
 /**
- * GET /tarefas/:id - Obtém uma tarefa específica
+ * GET /tarefas/:id - Busca uma tarefa específica
  */
 router.get("/tarefas/:id", TarefaController.obterTarefa);
 
@@ -32,14 +31,13 @@ router.get("/tarefas/:id", TarefaController.obterTarefa);
 router.post("/tarefas", TarefaController.criarTarefa);
 
 /**
- * PATCH /tarefas/:id - Atualiza uma tarefa parcialmente
+ * PUT /tarefas/:id - Atualiza uma tarefa (atualização parcial)
  */
-router.patch("/tarefas/:id", TarefaController.atualizarTarefa);
+router.put("/tarefas/:id", TarefaController.atualizarTarefa);
 
 /**
  * DELETE /tarefas/:id - Remove uma tarefa
  */
 router.delete("/tarefas/:id", TarefaController.excluirTarefa);
 
-// Exporta o roteador para ser usado no app principal
 export default router;
